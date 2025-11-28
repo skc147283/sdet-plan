@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monk Mode Protocol: FAANG SDET Roadmap</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Warm Neutral Foundation (Stone/Slate) with Academic Teal and Focus Blue accents.
+         Background: Light Stone (bg-stone-50).
+         Text: Slate 800/600.
+         Accents: Teal-600, Blue-700 for data/interactions. -->
+
+    <!-- Application Structure Plan:
+         1. Hero Section: Sets the tone ("Discipline is freedom") and Goal.
+         2. Interactive Routine Dashboard: A 24-hour cycle visualization. Users click time slots on a Doughnut chart to see specific activities/focus areas. Justification: Time management is the core of this plan.
+         3. The 6-Month Roadmap (Phased View): A tabbed interface separating the 3 phases. Reduces cognitive load by showing only relevant weeks at a time.
+         4. Tech Stack Radar: Visualizes the skills arsenal. Allows users to see the breadth of tools required.
+         5. The Mindset Rules: A footer/closing section reinforcing the philosophy.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Daily Routine: Doughnut Chart (Chart.js). Goal: Visualize the 24h split. Interaction: Click segment -> Update Detail Panel. Justification: Circles intuitively represent daily cycles.
+         2. Tech Stack: Radar Chart (Chart.js). Goal: Show the multi-dimensional skill set (Web, Mobile, AI, API, etc.). Interaction: Hover for tooltips.
+         3. Roadmap: Interactive Tabs/Cards (HTML/JS). Goal: progressive disclosure of the 6-month plan. NO SVG used.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        /* Custom Chart Container Styles to meet strict requirements */
+        .chart-container-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+
+        @media (max-width: 640px) {
+            .chart-container-wrapper {
+                height: 300px;
+            }
+        }
+
+        .phase-card {
+            transition: all 0.3s ease;
+        }
+        .phase-card.active {
+            border-left: 4px solid #0d9488; /* teal-600 */
+            background-color: #f0fdfa; /* teal-50 */
+        }
+
+        .nav-btn.active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans leading-relaxed">
+
+<!-- Header / Hero -->
+<header class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Monk Mode Protocol</h1>
+            <p class="text-xs text-slate-500 uppercase tracking-widest">FAANG SDET & AI Automation Plan</p>
+        </div>
+        <div class="hidden md:block">
+            <span class="bg-teal-100 text-teal-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">Timeline: 6 Months</span>
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Goal: L4/L5 Engineer</span>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- Introduction -->
+    <section class="max-w-4xl mx-auto text-center space-y-4">
+        <h2 class="text-3xl font-extrabold text-slate-900">"Discipline is Freedom"</h2>
+        <p class="text-lg text-slate-600">
+            This interactive application outlines a rigorous 6-month roadmap modeled after the intensity of top engineering students.
+            Explore the daily routine required to maintain peak performance, visualize the skills you will acquire, and navigate the week-by-week curriculum designed to land a role at Google, Microsoft, or Amazon.
+        </p>
+    </section>
+
+    <!-- Section 1: The Daily Routine (Interactive Chart) -->
+    <section class="bg-white rounded-2xl shadow-lg border border-stone-100 overflow-hidden">
+        <div class="p-6 border-b border-stone-100">
+            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-teal-600 text-2xl">&#9686;</span> The Daily "Monk" Cycle
+            </h3>
+            <p class="mt-2 text-slate-600">
+                Success is built on the foundation of daily habits. Use the interactive chart below to explore the strict timeline required.
+                <strong>Click on any segment of the day</strong> to view the specific focus, activities, and mindset required for that time block.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-10">
+            <!-- Visualization Column -->
+            <div class="flex flex-col items-center justify-center">
+                <div class="chart-container-wrapper">
+                    <canvas id="routineChart"></canvas>
+                </div>
+                <p class="text-xs text-slate-400 mt-4 italic text-center">Click chart segments to view details</p>
+            </div>
+
+            <!-- Interaction Detail Column -->
+            <div class="flex flex-col justify-center">
+                <div id="routine-detail-card" class="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm transition-all duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 id="routine-time" class="text-2xl font-bold text-teal-700">Select a time block</h4>
+                        <span id="routine-icon" class="text-3xl">👆</span>
+                    </div>
+                    <h5 id="routine-activity" class="text-lg font-semibold text-slate-900 mb-2">Interactive Schedule</h5>
+                    <p id="routine-desc" class="text-slate-600 mb-4">
+                        Click on the doughnut chart to see exactly how a Monk Mode day is structured. Every hour is accounted for to maximize deep work and recovery.
+                    </p>
+                    <div class="border-t border-slate-200 pt-4">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Primary Focus</span>
+                        <p id="routine-focus" class="text-sm font-medium text-slate-800 mt-1">Consistency & Discipline</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: The 6-Month Roadmap (Tabs/Cards) -->
+    <section>
+        <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-800 mb-2">🗺️ The 6-Month Roadmap</h3>
+            <p class="text-slate-600 max-w-3xl">
+                This curriculum is divided into three distinct phases. <strong>Select a Phase below</strong> to reveal the weekly breakdown, specific learning objectives, and the "FAANG Requirement" that drives each module.
+            </p>
+        </div>
+
+        <!-- Phase Navigation -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <button onclick="updatePhase(1)" id="btn-phase-1" class="nav-btn active px-6 py-4 rounded-xl border border-stone-200 shadow-sm text-left hover:shadow-md transition-all">
+                <div class="text-xs uppercase tracking-wider opacity-70 mb-1">Months 1-2</div>
+                <div class="font-bold text-lg">Phase 1: Foundation</div>
+                <div class="text-sm opacity-90 mt-1">DSA & Core Language</div>
+            </button>
+            <button onclick="updatePhase(2)" id="btn-phase-2" class="nav-btn bg-white hover:bg-stone-50 text-slate-600 px-6 py-4 rounded-xl border border-stone-200 shadow-sm text-left hover:shadow-md transition-all">
+                <div class="text-xs uppercase tracking-wider opacity-70 mb-1">Months 3-4</div>
+                <div class="font-bold text-lg">Phase 2: Automation</div>
+                <div class="text-sm opacity-90 mt-1">Web, Mobile & API</div>
+            </button>
+            <button onclick="updatePhase(3)" id="btn-phase-3" class="nav-btn bg-white hover:bg-stone-50 text-slate-600 px-6 py-4 rounded-xl border border-stone-200 shadow-sm text-left hover:shadow-md transition-all">
+                <div class="text-xs uppercase tracking-wider opacity-70 mb-1">Months 5-6</div>
+                <div class="font-bold text-lg">Phase 3: The Edge</div>
+                <div class="text-sm opacity-90 mt-1">AI, CI/CD & Design</div>
+            </button>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="phase-content" class="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
+            <!-- Content injected via JS -->
+        </div>
+    </section>
+
+    <!-- Section 3: The Toolkit (Radar Chart) -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 space-y-6">
+            <div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">🛠️ The Automation Arsenal</h3>
+                <p class="text-slate-600 text-sm">
+                    To compete for top-tier roles, you need a balanced skill set. The radar chart illustrates the six core technical domains you must master.
+                    <strong>Hover over the chart</strong> to see proficiency targets.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-5 border border-stone-200">
+                <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase">Essential Stack List</h4>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start">
+                        <span class="mr-2 mt-1 text-teal-600">●</span>
+                        <div>
+                            <span class="font-semibold block">Language</span>
+                            <span class="text-slate-500">Python (AI focus) or Java</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 mt-1 text-teal-600">●</span>
+                        <div>
+                            <span class="font-semibold block">Web Automation</span>
+                            <span class="text-slate-500">Playwright (Primary), Selenium</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 mt-1 text-teal-600">●</span>
+                        <div>
+                            <span class="font-semibold block">AI Tools</span>
+                            <span class="text-slate-500">Cursor, Copilot, OpenAI API</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 flex items-center justify-center shadow-sm">
+            <div class="chart-container-wrapper">
+                <canvas id="skillsChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Mindset Rules -->
+    <section class="bg-slate-900 rounded-2xl p-8 text-white">
+        <div class="max-w-4xl mx-auto">
+            <h3 class="text-2xl font-bold mb-6 text-center">🧘 The Monk Mindset Rules</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <div class="text-teal-400 font-bold mb-2">Rule #1</div>
+                    <h4 class="font-bold mb-1">Zero Zero Days</h4>
+                    <p class="text-sm text-slate-400">Do at least 1 LeetCode problem, even on your worst days.</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <div class="text-teal-400 font-bold mb-2">Rule #2</div>
+                    <h4 class="font-bold mb-1">Deep Work</h4>
+                    <p class="text-sm text-slate-400">Phone in another room. No notifications during blocks.</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <div class="text-teal-400 font-bold mb-2">Rule #3</div>
+                    <h4 class="font-bold mb-1">Nutrition</h4>
+                    <p class="text-sm text-slate-400">You are an athlete. Eat clean to prevent brain fog.</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <div class="text-teal-400 font-bold mb-2">Rule #4</div>
+                    <h4 class="font-bold mb-1">Documentation</h4>
+                    <p class="text-sm text-slate-400">Commit code daily to your "My-SDET-Journey" repo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="bg-white border-t border-stone-200 mt-12 py-8 text-center text-slate-500 text-sm">
+    <p>Generated based on the "FAANG SDET Monk Plan"</p>
+</footer>
+
+<!-- JavaScript Logic -->
+<script>
+    // --- DATA STORAGE ---
+
+    // 1. Routine Data
+    const routineData = [
+        { label: "Wake Up", duration: 0.25, time: "04:45 AM", color: "#f59e0b", icon: "🌅", activity: "Wake Up Routine", focus: "Hydrate, Make Bed, No Phone", desc: "Start the day with discipline. Avoid dopamine hits from your phone immediately upon waking." },
+        { label: "Deep Work 1", duration: 1.5, time: "05:00 AM - 06:30 AM", color: "#0d9488", icon: "🧠", activity: "Coding & Algorithms", focus: "LeetCode (Fresh Brain)", desc: "The most critical block of the day. Solve problems while your mind is freshest. No distractions." },
+        { label: "Gym", duration: 1.5, time: "06:30 AM - 08:00 AM", color: "#ef4444", icon: "🏋️", activity: "Physical Training", focus: "Heavy Lifting + Cardio", desc: "Physical exertion clears the mind. Listen to technical podcasts if you can, or just focus on the lift." },
+        { label: "Breakfast/Commute", duration: 1, time: "08:00 AM - 09:00 AM", color: "#fbbf24", icon: "🍳", activity: "Breakfast & Commute", focus: "High Protein, Mental Prep", desc: "Fuel your body for the workday. Review your goals for the office." },
+        { label: "Office Work", duration: 8, time: "09:00 AM - 05:00 PM", color: "#64748b", icon: "💼", activity: "Office Job", focus: "Excellence & Automation", desc: "Be excellent at your current job, but automate boring tasks to conserve mental energy for evening study." },
+        { label: "Commute/Decompress", duration: 1, time: "05:00 PM - 06:00 PM", color: "#fbbf24", icon: "🎧", activity: "Decompress", focus: "System Design Audio / Meditate", desc: "Transition time. Switch context from work mode to study mode. Light dinner." },
+        { label: "Deep Work 2", duration: 2, time: "06:00 PM - 08:00 PM", color: "#0f766e", icon: "⚡", activity: "Core Automation Skills", focus: "Projects, Tools, Frameworks", desc: "Hands-on coding. Build frameworks in Selenium/Playwright. Apply what you learned in theory." },
+        { label: "Revision", duration: 1, time: "08:00 PM - 09:00 PM", color: "#3b82f6", icon: "📚", activity: "Revision & Soft Skills", focus: "Mock Interviews, Review", desc: "Review the morning's code. Read System Design concepts. Prepare for behavioral questions." },
+        { label: "Wind Down", duration: 0.5, time: "09:00 PM - 09:30 PM", color: "#8b5cf6", icon: "🧘", activity: "Wind Down", focus: "No Screens, Journaling", desc: "Disconnect. Plan tomorrow's tasks. Journal your progress." },
+        { label: "Sleep", duration: 7.25, time: "09:30 PM - 04:45 AM", color: "#1e293b", icon: "💤", activity: "Sleep", focus: "Recovery", desc: "Non-negotiable. Your brain builds neural pathways for the new skills while you sleep." }
+    ];
+
+    // 2. Phase Data
+    const phases = {
+        1: {
+            title: "Phase 1: The Foundation of Steel",
+            meta: "Months 1-2 • Focus: DSA & Language",
+            requirement: "FAANG Requirement: You cannot pass the first round without strong LeetCode skills.",
+            weeks: [
+                { title: "Weeks 1-4", subtitle: "Python/Java Mastery & Basic DSA", items: ["Master OOPs, Collections, Threading", "DSA: Arrays, Strings, HashMaps, Linked Lists", "Task: 5 LeetCode 'Easy' problems daily"] },
+                { title: "Weeks 5-8", subtitle: "Advanced DSA & Testing Core", items: ["DSA: Trees, Graphs, BFS/DFS, DP Basics", "Testing: STLC, Bug Life Cycle, Strategy", "Task: 2 LeetCode 'Medium' problems daily"] }
+            ]
+        },
+        2: {
+            title: "Phase 2: The Automation Arsenal",
+            meta: "Months 3-4 • Focus: Web/Mobile/API",
+            requirement: "FAANG Requirement: Understanding reliable, scalable automation (no flaky tests).",
+            weeks: [
+                { title: "Weeks 9-12", subtitle: "Web Automation (The Big Three)", items: ["Selenium: Architecture, POM, Singleton Pattern", "Playwright: Network interception, auto-waiting (Crucial)", "Cypress: Limitations vs Speed"] },
+                { title: "Weeks 13-16", subtitle: "API & Mobile Automation", items: ["API: REST vs GraphQL, Auth (OAuth2), PyTest/RestAssured", "Mobile: Appium 2.0 architecture", "Task: Build a hybrid framework"] }
+            ]
+        },
+        3: {
+            title: "Phase 3: The AI & System Design Edge",
+            meta: "Months 5-6 • Focus: AI, CI/CD, Design",
+            requirement: "FAANG Requirement: 'How would you test WhatsApp?' (Scalability & Infrastructure).",
+            weeks: [
+                { title: "Weeks 17-20", subtitle: "AI in Automation & CI/CD", items: ["AI Tools: GitHub Copilot, Applitools, Testim", "Agentic AI: LangChain for test gen", "DevOps: Docker, Jenkins pipelines"] },
+                { title: "Weeks 21-24", subtitle: "System Design & Mocks", items: ["System Design: Load testing (JMeter/K6), Framework design", "Mock Interviews: 1 Behavioral + 1 Technical weekly", "Final Polish: Resume revamp"] }
+            ]
+        }
+    };
+
+    // --- CHART INITIALIZATION ---
+
+    // Routine Chart (Doughnut)
+    const ctxRoutine = document.getElementById('routineChart').getContext('2d');
+    const routineChart = new Chart(ctxRoutine, {
+        type: 'doughnut',
+        data: {
+            labels: routineData.map(d => d.label),
+            datasets: [{
+                data: routineData.map(d => d.duration),
+                backgroundColor: routineData.map(d => d.color),
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const idx = context.dataIndex;
+                            return `${routineData[idx].time}: ${routineData[idx].label}`;
+                        }
+                    }
+                }
+            },
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const idx = elements[0].index;
+                    updateRoutineCard(idx);
+                }
+            }
+        }
+    });
+
+    // Skills Chart (Radar)
+    const ctxSkills = document.getElementById('skillsChart').getContext('2d');
+    const skillsChart = new Chart(ctxSkills, {
+        type: 'radar',
+        data: {
+            labels: ['DSA/Coding', 'Web Auto (Playwright)', 'API Testing', 'Mobile (Appium)', 'CI/CD (DevOps)', 'AI Tools'],
+            datasets: [{
+                label: 'Target Proficiency',
+                data: [90, 95, 85, 75, 80, 85],
+                fill: true,
+                backgroundColor: 'rgba(13, 148, 136, 0.2)', // teal-600 low opacity
+                borderColor: 'rgb(13, 148, 136)',
+                pointBackgroundColor: 'rgb(13, 148, 136)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(13, 148, 136)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#e5e7eb' },
+                    grid: { color: '#e5e7eb' },
+                    pointLabels: {
+                        font: { size: 12, family: 'sans-serif', weight: 'bold' },
+                        color: '#475569'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // --- INTERACTIVITY FUNCTIONS ---
+
+    // Update Routine Detail Card
+    function updateRoutineCard(index) {
+        const data = routineData[index];
+        document.getElementById('routine-time').textContent = data.time;
+        document.getElementById('routine-icon').textContent = data.icon;
+        document.getElementById('routine-activity').textContent = data.activity;
+        document.getElementById('routine-desc').textContent = data.desc;
+        document.getElementById('routine-focus').textContent = data.focus;
+
+        // Visual feedback on card
+        const card = document.getElementById('routine-detail-card');
+        card.style.borderColor = data.color;
+        card.style.backgroundColor = '#fff'; // Reset
+        setTimeout(() => {
+            card.style.backgroundColor = `${data.color}10`; // Add slight tint of color
+        }, 50);
+    }
+
+    // Update Phase Content
+    function updatePhase(phaseId) {
+        // Update Buttons
+        [1, 2, 3].forEach(id => {
+            const btn = document.getElementById(`btn-phase-${id}`);
+            if (id === phaseId) {
+                btn.classList.add('active');
+                btn.classList.remove('bg-white', 'text-slate-600');
+            } else {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'text-slate-600');
+            }
+        });
+
+        // Update Content
+        const data = phases[phaseId];
+        const contentDiv = document.getElementById('phase-content');
+
+        let weeksHtml = '';
+        data.weeks.forEach(week => {
+            const listItems = week.items.map(item => `<li class="flex items-start"><span class="mr-2 text-teal-500">▹</span>${item}</li>`).join('');
+            weeksHtml += `
+                <div class="bg-stone-50 rounded-xl p-5 border border-stone-100">
+                    <div class="flex justify-between items-center mb-3 border-b border-stone-200 pb-2">
+                        <h5 class="font-bold text-slate-800">${week.title}</h5>
+                        <span class="text-xs font-semibold text-slate-500 uppercase">${week.subtitle}</span>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        ${listItems}
+                    </ul>
+                </div>
+            `;
+        });
+
+        contentDiv.innerHTML = `
+            <div class="animate-fade-in">
+                <div class="mb-6">
+                    <h4 class="text-2xl font-bold text-teal-800">${data.title}</h4>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                        <span>${data.meta}</span>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 text-blue-800 text-sm rounded-lg border border-blue-100">
+                        <strong>🎯 Goal:</strong> ${data.requirement}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${weeksHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    // Initialize with Defaults
+    window.addEventListener('DOMContentLoaded', () => {
+        updatePhase(1); // Load Phase 1
+        updateRoutineCard(1); // Load Deep Work block (Index 1) as default view
+    });
+
+</script>
+</body>
+</html>
