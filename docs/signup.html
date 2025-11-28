@@ -24,8 +24,11 @@
   <div id="status" class="message"></div>
 
   <script>
-    // Determine API base: use local backend during development, set PRODUCTION_API when deployed.
-    const PRODUCTION_API = 'https://YOUR_BACKEND_HOST'; // <- replace with your deployed backend URL when available
+    // PRODUCTION_API: set this to the backend URL only if the static site is hosted separately
+    // Leaving it empty causes the client to use a same-origin relative path ("/api/..."),
+    // which is ideal when the backend serves the docs (Render setup) or when the site and API are on the same host.
+    const PRODUCTION_API = ''; // e.g. 'https://sdet-plan-backend.onrender.com' if hosted separately
+
     const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:3000' : PRODUCTION_API;
 
     const form = document.getElementById('signup');
@@ -40,7 +43,9 @@
       };
       status.textContent = 'Submitting...';
       try {
-        const resp = await fetch(`${API_BASE}/api/signup`, {
+        // Use same-origin relative path if API_BASE is empty
+        const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/api/signup` : '/api/signup';
+        const resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
