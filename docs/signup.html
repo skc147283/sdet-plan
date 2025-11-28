@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SDET Plan - Signup</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:24px;background:#fafafa}
+    form{max-width:480px;margin:0 auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+    label{display:block;margin-top:12px}
+    input,textarea{width:100%;padding:8px;margin-top:6px;border:1px solid #ddd;border-radius:4px}
+    button{margin-top:12px;padding:10px 14px;background:#0d9488;color:#fff;border:none;border-radius:6px}
+    .message{max-width:480px;margin:12px auto;text-align:center}
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center">Join the SDET Plan</h1>
+  <form id="signup">
+    <label>Name<input name="name" type="text" placeholder="Your name (optional)" /></label>
+    <label>Email<input name="email" type="email" required placeholder="Your email" /></label>
+    <label>Message<textarea name="message" rows="4" placeholder="Why you're interested (optional)"></textarea></label>
+    <button type="submit">Sign up</button>
+  </form>
+  <div id="status" class="message"></div>
+
+  <script>
+    // Determine API base: use local backend during development, set PRODUCTION_API when deployed.
+    const PRODUCTION_API = 'https://YOUR_BACKEND_HOST'; // <- replace with your deployed backend URL when available
+    const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:3000' : PRODUCTION_API;
+
+    const form = document.getElementById('signup');
+    const status = document.getElementById('status');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const data = {
+        name: fd.get('name'),
+        email: fd.get('email'),
+        message: fd.get('message')
+      };
+      status.textContent = 'Submitting...';
+      try {
+        const resp = await fetch(`${API_BASE}/api/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const json = await resp.json();
+        if (!resp.ok) throw new Error(json.error || 'Failed');
+        status.textContent = 'Thanks! Your entry was recorded.';
+        form.reset();
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

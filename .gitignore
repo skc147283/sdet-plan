@@ -1,0 +1,29 @@
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+.env
+
+# SQLite DB (do not commit development DB)
+server/data.db
+
+# OS files
+.DS_Store
+
+# Python server temp
+__pycache__/
+
+# Logs
+*.log
+
+# Ignore temporary publish clone dirs
+/tmp/
+
+# IDE
+.idea/
+.vscode/
+
+# Mac specific
+.AppleDouble
+.LSOverride
+
