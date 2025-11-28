@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: sdet-plan-backend
+    env: node
+    plan: free
+    branch: main
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && npm run start"
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_KEY
+        fromDatabase: false
+        value: "__SET_ME__"
+    mounts:
+      # optional: mount a volume for persistence (render supports disks on paid plans)
+      # - path: /data
+      #   disk: sdet-plan-disk
+
+# Note: This Render config deploys the backend as a single web service using the server/ folder.
+# The SQLite file will be created at server/data.db in the container. On the free plan, this
+# filesystem may be ephemeral; do not rely on it for long-term persistence.
